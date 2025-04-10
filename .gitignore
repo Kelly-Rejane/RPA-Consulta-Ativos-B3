@@ -1,0 +1,42 @@
+# Diretórios de build
+bin/
+obj/
+
+# Arquivos do Visual Studio
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Arquivos de log, banco e configs locais
+*.log
+*.db
+*.sqlite
+*.pdb
+
+# Configurações locais e arquivos sensíveis
+.env
+secrets.json
+
+# VSCode
+.vscode/
+
+# Arquivos de configuração do app
+appsettings.Production.json
+
+# Diretórios do Rider/JetBrains (caso use)
+.idea/
+
+# Arquivos do sistema operacional
+Thumbs.db
+ehthumbs.db
+.DS_Store
+*.swp
+*~
+
+# Cache do NuGet
+*.nupkg
+.nuget/
+
+# Diretórios de publicação
+publish/
