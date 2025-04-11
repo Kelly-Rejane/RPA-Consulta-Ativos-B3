@@ -1,24 +1,60 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 using RpaConsultaAtivosB3.src.Utils;
+using RpaConsultaAtivosB3.src.Services;
+using RpaConsultaAtivosB3.src.Orchestrators;
+using RpaConsultaAtivosB3.src.Interface;
+using RpaConsultaAtivosB3.src.Pages;
+using OpenQA.Selenium;
+using RpaConsultaAtivosB3.src.Builders;
 
-//Configuração do logger
-// Essa configuração é feita antes de criar o Host, para que o logger seja utilizado em toda a aplicação.
+// Configuração do logger
 Logger.CreateLogger();
 
-// Criação do Host
-// O Host é responsável por gerenciar a aplicação, incluindo a configuração de serviços e o 
-//ciclo de vida da aplicação.
+// Criação do Host para injeção de dependências e configuração do aplicativo
+// O Host é responsável por gerenciar o ciclo de vida do aplicativo e suas dependências
 var builder = Host.CreateDefaultBuilder(args)
-    .UseSerilog() // usa Serilog como logger global
+    .ConfigureAppConfiguration((hostingContext, config) =>
+    {
+        config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+    })
+    .UseSerilog()
     .ConfigureServices((context, services) =>
     {
-        //configuração dos serviços
+        services.AddScoped<IWebDriver>(provider =>
+        {
+            return WebDriverBuilder.Create(); // ou headless: true
+        });
+
+        services.AddScoped<ExcelService>();
+        services.AddScoped<EmailService>();
+        services.AddScoped<IConsultaAtivoService, ConsultaAtivoPage>();
+        services.AddScoped<AutomationRunnerOrchestrator>();
     });
+
 
 var app = builder.Build();
 
-//Execução aqui
+try
+{
+    var configuration = app.Services.GetRequiredService<IConfiguration>();
+    string caminhoRelativo = configuration["Caminhos:Excel"];
 
-app.Run();
+    Console.WriteLine($"📄 Caminho relativo do Excel: {caminhoRelativo}");
+
+    if (string.IsNullOrWhiteSpace(caminhoRelativo))
+        throw new Exception("❌ Caminho do Excel não definido no appsettings.json!");
+
+    // Torna o caminho absoluto baseado no diretório de execução
+    string caminhoAbsoluto = Path.GetFullPath(caminhoRelativo, AppDomain.CurrentDomain.BaseDirectory);
+
+    var runner = app.Services.GetRequiredService<AutomationRunnerOrchestrator>();
+    Console.WriteLine($"📂 Caminho absoluto: {caminhoAbsoluto}");
+    runner.Executar(caminhoAbsoluto);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Erro: {ex.Message}");
+}
