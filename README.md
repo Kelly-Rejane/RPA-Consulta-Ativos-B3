@@ -1,7 +1,7 @@
 
 # 📈 Automação RPA para Consulta de Ativos na B3
 
-Este é o **primeiro projeto RPA em C#**, desenvolvido com fins de aprendizado e prática em automação de processos com integração a sites, planilhas e envio de e-mails.
+Este é o meu **primeiro projeto RPA em C#**, desenvolvido com fins de aprendizado e prática em automação de processos com integração a sites, planilhas e envio de e-mails.
 
 ## 🧠 Objetivo
 
